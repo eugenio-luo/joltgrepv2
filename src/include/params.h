@@ -17,4 +17,3 @@ constexpr inline bool TEST_DEFINED =
 #endif
 
 constexpr inline bool ASSERT_ENABLED = DEBUG_DEFINED || TEST_DEFINED;
-constexpr inline size_t BACKTRACE_SIZE = 64;

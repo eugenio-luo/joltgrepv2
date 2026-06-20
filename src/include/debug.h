@@ -10,6 +10,8 @@
 
 #include "params.h"
 
+constexpr inline size_t BACKTRACE_SIZE = 64;
+
 struct TestError : std::runtime_error {
     using std::runtime_error::runtime_error;
 };
