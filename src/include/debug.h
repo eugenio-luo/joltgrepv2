@@ -33,3 +33,22 @@ void assert(bool condition, std::format_string<Args...> fmt, Args&&... args) {
         }
     }
 }
+
+/*
+ * Assert that 0 <= x < right
+ */
+template <std::integral T, std::integral U, std::integral V>
+void _assertBound(T left, U x, V right, std::string_view varName) {
+    assert(std::cmp_greater_equal(x, left) && std::cmp_less(x, right),
+           "should {0} <= {1} < {2}, but {1} = {3}", left, varName, right, x);
+}
+
+template <std::integral U, std::integral V>
+void _assertAtLeast(U x, V least, std::string_view varName) {
+    assert(std::cmp_greater_equal(x, least),
+           "should {0} <= {1}, but {1} = {2}", least, varName, x);
+}
+
+#define assertBound(left, x, right) _assertBound(left, x, right, #x)
+#define assertSpan(x, right) _assertBound(0, x, right, #x)
+#define assertAtLeast(x, least) _assertAtLeast(x, least, #x)
