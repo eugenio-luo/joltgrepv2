@@ -6,24 +6,28 @@ option(BUILD_TESTS "build and run tests" OFF)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_SCAN_FOR_MODULES ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-file(GLOB_RECURSE sources      src/*.cpp)
+file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp)
+file(GLOB_RECURSE module_sources CONFIGURE_DEPENDS src/*.cppm)
 
 find_package(absl REQUIRED)
 find_package(re2 REQUIRED)
 
-add_executable(joltgrep ${sources})
+add_executable(joltgrep)
 
+target_sources(joltgrep
+    PRIVATE
+        ${sources}
+    PRIVATE
+        FILE_SET cxx_modules TYPE CXX_MODULES FILES
+        ${module_sources}
+)
+
+target_compile_options(joltgrep PRIVATE -Wall -Wextra -O2 -DDEBUG)
 if (BUILD_TESTS)
-    target_compile_options(joltgrep PRIVATE -Wall -Wextra -g)
-    target_compile_definitions(joltgrep PRIVATE TESTS_BUILD)
-    target_include_directories(joltgrep PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/tests)
-
-    file(GLOB_RECURSE tests_sources     tests/*.cpp)
-    target_sources(joltgrep PRIVATE ${tests_sources})
-else()
-    #target_compile_options(joltgrep PRIVATE -Wall -Wextra -O2 -DDEBUG)
-    target_compile_options(joltgrep PRIVATE -Wall -Wextra -O2 )
+    target_compile_options(joltgrep PRIVATE -DTEST)
 endif()
 
 target_link_libraries(joltgrep re2::re2)
