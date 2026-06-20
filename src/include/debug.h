@@ -4,9 +4,15 @@
 #include <print>
 #include <span>
 #include <execinfo.h>
+#include <stdexcept>
 #include <unistd.h>
+#include <utility>
 
 #include "params.h"
+
+struct TestError : std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
 
 inline std::span<char*> getBacktraceSymbols(void) {
     void* frames[BACKTRACE_SIZE];
@@ -18,18 +24,22 @@ template <typename... Args>
 void assert(bool condition, std::format_string<Args...> fmt, Args&&... args) {
     if constexpr (ASSERT_ENABLED) {
         if (!condition) {
-            std::span<char *> symbols {getBacktraceSymbols()};
-            std::string out {"assertion failed: "
-                + std::format(fmt, std::forward<Args>(args)...)
-                + "\nbacktrace:\n"};
+            if constexpr (!TEST_DEFINED) {
+                std::span<char *> symbols {getBacktraceSymbols()};
+                std::string out {"assertion failed: "
+                    + std::format(fmt, std::forward<Args>(args)...)
+                    + "\nbacktrace:\n"};
 
-            for (auto symbol : symbols) {
-                out += symbol;
-                out += "\n";
+                for (auto symbol : symbols) {
+                    out += symbol;
+                    out += "\n";
+                }
+                std::print("{0}", out);
+
+                std::abort();
+            } else {
+                throw TestError(std::format(fmt, std::forward<Args>(args)...));
             }
-            std::print("{0}", out);
-
-            std::abort();
         }
     }
 }
