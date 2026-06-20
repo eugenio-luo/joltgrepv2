@@ -1,0 +1,7 @@
+build/*
+lib/*
+traces/*
+.vscode
+trace.sh
+
+!lib/.gitkeep
