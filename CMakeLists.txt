@@ -4,28 +4,20 @@ project(joltgrep VERSION 0.0.1 DESCRIPTION "grep C++ implementation")
 
 option(BUILD_TESTS "build and run tests" OFF)
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_SCAN_FOR_MODULES ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 file(GLOB_RECURSE sources CONFIGURE_DEPENDS src/*.cpp)
-file(GLOB_RECURSE module_sources CONFIGURE_DEPENDS src/*.cppm)
 
 find_package(absl REQUIRED)
 find_package(re2 REQUIRED)
 
 add_executable(joltgrep)
 
-target_sources(joltgrep
-    PRIVATE
-        ${sources}
-    PRIVATE
-        FILE_SET cxx_modules TYPE CXX_MODULES FILES
-        ${module_sources}
-)
+target_sources(joltgrep PRIVATE ${sources})
 
-target_compile_options(joltgrep PRIVATE -Wall -Wextra -O2 -DDEBUG)
+target_compile_options(joltgrep PRIVATE -Wall -Wextra -O2 -DDEBUG -freflection)
 if (BUILD_TESTS)
     target_compile_options(joltgrep PRIVATE -DTEST)
 endif()
